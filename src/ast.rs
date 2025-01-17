@@ -1,57 +1,51 @@
-use crate::token::{Token, TokenType, Literal};
+#![allow(dead_code)]
+use crate::token::{Token, Literal};
 
-pub trait ExprVisitor {
-    type Output;
-    fn visit_binary(&mut self, expr: &Binary) -> Self::Output;
-    fn visit_unary(&mut self, expr: &Unary) -> Self::Output;
-    fn visit_literal(&mut self, expr: &LiteralExpr) -> Self::Output;
-    fn visit_grouping(&mut self, expr: &Grouping) -> Self::Output;
-}
-
-pub trait VisitableExpr {
-    fn accept(&self, visitor: &mut dyn ExprVisitor<Output = String>) -> String;
-}
 
 //=== AST Structs ===
 
 pub struct Binary {
-    pub left: Box<dyn VisitableExpr>,
+    pub left: Box<Expr>,
     pub operator: Token,
-    pub right: Box<dyn VisitableExpr>,
+    pub right: Box<Expr>,
 }
 
 impl Binary {
     pub fn new(
-        left: Box<dyn VisitableExpr>,
+        left: Box<Expr>,
         operator: Token,
-        right: Box<dyn VisitableExpr>,
+        right: Box<Expr>,
     ) -> Self {
         Self { left, operator, right }
     }
 }
 
-impl VisitableExpr for Binary {
-    fn accept(&self, visitor: &mut dyn ExprVisitor<Output = String>) -> String {
-        visitor.visit_binary(self)
+impl ToString for Binary {
+    fn to_string(&self) -> String {
+        format!("({} {} {})",
+            self.operator,
+            self.left,
+            self.right)
     }
 }
+
 
 //------------------------------------------
 
 pub struct Unary {
     pub operator: Token,
-    pub next: Box<dyn VisitableExpr>,
+    pub next: Box<Expr>,
 }
 
 impl Unary {
-    pub fn new(operator: Token, next: Box<dyn VisitableExpr>) -> Self {
+    pub fn new(operator: Token, next: Box<Expr>) -> Self {
         Self { operator, next }
     }
 }
 
-impl VisitableExpr for Unary {
-    fn accept(&self, visitor: &mut dyn ExprVisitor<Output = String>) -> String {
-        visitor.visit_unary(self)
+impl ToString for Unary {
+    fn to_string(&self) -> String {
+        format!("({} {})", self.operator, self.next)
     }
 }
 
@@ -67,27 +61,33 @@ impl LiteralExpr {
     }
 }
 
-impl VisitableExpr for LiteralExpr {
-    fn accept(&self, visitor: &mut dyn ExprVisitor<Output = String>) -> String {
-        visitor.visit_literal(self)
+impl ToString for LiteralExpr {
+    fn to_string(&self) -> String {
+        let fm = match &self.value {
+            Literal::Number(x) => x.to_string(),
+            Literal::String(s) => s.to_string(),
+            Literal::Nil => "Nil".to_string()
+        };
+
+        format!("({fm})")
     }
 }
 
 //------------------------------------------
 
 pub struct Grouping {
-    pub expression: Box<dyn VisitableExpr>,
+    pub expression: Box<Expr>,
 }
 
 impl Grouping {
-    pub fn new(expression: Box<dyn VisitableExpr>) -> Self {
+    pub fn new(expression: Box<Expr>) -> Self {
         Self { expression }
     }
 }
 
-impl VisitableExpr for Grouping {
-    fn accept(&self, visitor: &mut dyn ExprVisitor<Output = String>) -> String {
-        visitor.visit_grouping(self)
+impl ToString for Grouping {
+    fn to_string(&self) -> String {
+        format!("(group {})", self.expression.pretty_print())
     }
 }
 
@@ -100,48 +100,19 @@ pub enum Expr {
     Grouping(Box<Grouping>),
 }
 
-// For convenience, implement VisitableExpr on the enum itself:
-impl VisitableExpr for Expr {
-    fn accept(&self, visitor: &mut dyn ExprVisitor<Output = String>) -> String {
+impl Expr {
+    pub fn pretty_print(&self) -> String {
         match self {
-            Expr::Binary(b) => b.accept(visitor),
-            Expr::Unary(u) => u.accept(visitor),
-            Expr::Literal(l) => l.accept(visitor),
-            Expr::Grouping(g) => g.accept(visitor),
+            Expr::Binary(b) => b.to_string(),
+            Expr::Unary(u) => u.to_string(),
+            Expr::Literal(l) => l.to_string(),
+            Expr::Grouping(g) => g.to_string(),
         }
     }
 }
 
-
-pub struct AstVisitor;
-
-impl ExprVisitor for AstVisitor {
-    type Output = String;
-
-    fn visit_binary(&mut self, expr: &Binary) -> String {
-        // Recursively visit left & right to build a string
-        let left_str = expr.left.accept(self);
-        let right_str = expr.right.accept(self);
-        let op_str = format!("{:?}", expr.operator.get_token());
-        format!("(Bin {} {} {})", op_str, left_str, right_str)
-    }
-
-    fn visit_unary(&mut self, expr: &Unary) -> String {
-        let next_str = expr.next.accept(self);
-        let op_str = format!("{:?}", expr.operator.get_token());
-        format!("(Un {} {})", op_str, next_str)
-    }
-
-    fn visit_literal(&mut self, expr: &LiteralExpr) -> String {
-        match &expr.value {
-            Literal::Number(n) => format!("{}", n),
-            Literal::String(s) => s.to_string(),
-            Literal::Nil => "Nil".to_string(),
-        }
-    }
-
-    fn visit_grouping(&mut self, expr: &Grouping) -> String {
-        let expr_str = expr.expression.accept(self);
-        format!("(Grp {})", expr_str)
+impl std::fmt::Display for Expr {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.pretty_print())
     }
 }
