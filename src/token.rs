@@ -4,10 +4,11 @@ use strum_macros::Display;
 pub enum Literal {
     Number(f32),
     String(String),
+    Boolean(bool),
     Nil,
 }
 
-#[derive(Display, Clone, Copy, Debug)]
+#[derive(Display, Clone, Copy, Debug, PartialEq)]
 pub enum TokenType {
     // Single Character Tokens
     LeftParen, RightParen, LeftBrace, RightBrace,
@@ -29,7 +30,7 @@ pub enum TokenType {
     EOF,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Token {
     r#type: TokenType,
     pub lexeme: String,
@@ -61,8 +62,11 @@ impl Token {
                 .to_string()
             )
     }
-    pub fn get_token(&self) -> &Self {
-        return &self;
+    pub fn get_type(&self) -> &TokenType {
+        return &self.r#type;
+    }
+    pub fn get_literal(&mut self) -> &Literal {
+        return self.literal.as_ref().unwrap();
     }
 }
 

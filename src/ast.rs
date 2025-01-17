@@ -18,6 +18,14 @@ impl Binary {
     ) -> Self {
         Self { left, operator, right }
     }
+
+    pub fn make_expr(left: Expr, operator: Token, right: Expr) -> Expr {
+        Expr::Binary(Box::new(Self::new(
+            Box::new(left),
+            operator,
+            Box::new(right)
+        )))
+    }
 }
 
 impl ToString for Binary {
@@ -41,6 +49,13 @@ impl Unary {
     pub fn new(operator: Token, next: Box<Expr>) -> Self {
         Self { operator, next }
     }
+
+    pub fn make_expr(operator: Token, next: Expr) -> Expr {
+        Expr::Unary(Box::new(Unary::new(
+            operator,
+            Box::new(next)
+        )))
+    }
 }
 
 impl ToString for Unary {
@@ -59,6 +74,11 @@ impl LiteralExpr {
     pub fn new(value: Literal) -> Self {
         Self { value }
     }
+    pub fn make_expr(value: Literal) -> Expr {
+        Expr::Literal(Self::new(
+                value
+        ))
+    }
 }
 
 impl ToString for LiteralExpr {
@@ -66,6 +86,7 @@ impl ToString for LiteralExpr {
         let fm = match &self.value {
             Literal::Number(x) => x.to_string(),
             Literal::String(s) => s.to_string(),
+            Literal::Boolean(b) => b.to_string(),
             Literal::Nil => "Nil".to_string()
         };
 
@@ -82,6 +103,14 @@ pub struct Grouping {
 impl Grouping {
     pub fn new(expression: Box<Expr>) -> Self {
         Self { expression }
+    }
+
+    pub fn make_expr(expression: Expr) -> Expr {
+        Expr::Grouping(Box::new(
+            Self::new(
+                Box::new(expression)
+            )
+        ))
     }
 }
 

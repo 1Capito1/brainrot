@@ -1,5 +1,6 @@
 mod ast;
 mod test;
+mod parser;
 mod scanner;
 mod token;
 use crate::scanner::Scanner;

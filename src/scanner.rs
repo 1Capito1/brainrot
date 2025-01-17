@@ -265,7 +265,7 @@ impl Scanner {
     fn number(&mut self) -> Result<()> {
         while Self::is_digit(self.peek()) { self.advance(); }
 
-        if (self.peek() == '.' && Self::is_digit(self.peek_next())) {
+        if self.peek() == '.' && Self::is_digit(self.peek_next()) {
             self.advance();
         }
 
