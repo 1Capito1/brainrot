@@ -2,7 +2,7 @@ use strum_macros::Display;
 
 #[derive(Display, Debug, Clone)]
 pub enum Literal {
-    Number(i32),
+    Number(f32),
     String(String),
     Nil,
 }
@@ -32,7 +32,7 @@ pub enum TokenType {
 #[derive(Debug)]
 pub struct Token {
     r#type: TokenType,
-    lexeme: String,
+    pub lexeme: String,
     literal: Option<Literal>,
     line: usize
 }
@@ -60,5 +60,8 @@ impl Token {
                 .unwrap_or(&Literal::String("<EOF>".to_string()))
                 .to_string()
             )
+    }
+    pub fn get_token(&self) -> &Self {
+        return &self;
     }
 }

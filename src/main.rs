@@ -1,13 +1,13 @@
-mod scanner;
 mod ast;
+mod test;
+mod scanner;
 mod token;
+use crate::scanner::Scanner;
 use anyhow::Result;
 use clap::Parser;
 use std::fs::File;
 use std::io::Read;
 use std::io::{stdout, Write};
-use crate::scanner::Scanner;
-use crate::ast::*;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about=None)]
@@ -18,7 +18,7 @@ struct Args {
 }
 
 struct Main {
-    scanner: Scanner
+    scanner: Scanner,
 }
 impl Main {
     fn run(&mut self, str: &str) {
@@ -60,11 +60,12 @@ impl Main {
     }
 }
 
-
 fn main() -> Result<()> {
     let args = Args::parse();
 
-    let mut main = Main {scanner: Scanner::default()};
+    let mut main = Main {
+        scanner: Scanner::default(),
+    };
 
     if let Some(file_name) = &args.file_name {
         main.run_file(file_name)?;
@@ -72,7 +73,7 @@ fn main() -> Result<()> {
         main.run_prompt()?;
     }
 
-    if !main.scanner.get_errors().is_empty() { 
+    if !main.scanner.get_errors().is_empty() {
         for error in main.scanner.get_errors() {
             eprintln!("{error}");
         }
