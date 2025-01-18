@@ -1,16 +1,18 @@
 mod ast;
-mod test;
 mod parser;
 mod scanner;
+mod test;
 mod token;
 use crate::scanner::Scanner;
+use crate::parser::Parser;
 use anyhow::Result;
-use clap::Parser;
+use clap::Parser as ClapParser;
 use std::fs::File;
 use std::io::Read;
 use std::io::{stdout, Write};
+use anyhow::Error;
 
-#[derive(Parser, Debug)]
+#[derive(ClapParser, Debug)]
 #[command(version, about, long_about=None)]
 struct Args {
     file_name: Option<String>,
@@ -20,12 +22,20 @@ struct Args {
 
 struct Main {
     scanner: Scanner,
+    parser: Parser,
 }
 impl Main {
     fn run(&mut self, str: &str) {
         self.scanner = Scanner::new(str.to_string());
 
         self.scanner.scan_tokens();
+        // TODO: remove this clone call
+        self.parser = Parser::new(self.scanner.tokens.clone());
+
+        self.parser.parse();
+
+        // TODO: collect the errors
+
 
         if self.scanner.get_errors().is_empty() {
             for token in &self.scanner.tokens {
@@ -66,6 +76,7 @@ fn main() -> Result<()> {
 
     let mut main = Main {
         scanner: Scanner::default(),
+        parser: Parser::default(),
     };
 
     if let Some(file_name) = &args.file_name {

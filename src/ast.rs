@@ -1,6 +1,5 @@
 #![allow(dead_code)]
-use crate::token::{Token, Literal};
-
+use crate::token::{Literal, Token};
 
 //=== AST Structs ===
 
@@ -11,32 +10,28 @@ pub struct Binary {
 }
 
 impl Binary {
-    pub fn new(
-        left: Box<Expr>,
-        operator: Token,
-        right: Box<Expr>,
-    ) -> Self {
-        Self { left, operator, right }
+    pub fn new(left: Box<Expr>, operator: Token, right: Box<Expr>) -> Self {
+        Self {
+            left,
+            operator,
+            right,
+        }
     }
 
     pub fn make_expr(left: Expr, operator: Token, right: Expr) -> Expr {
         Expr::Binary(Box::new(Self::new(
             Box::new(left),
             operator,
-            Box::new(right)
+            Box::new(right),
         )))
     }
 }
 
 impl ToString for Binary {
     fn to_string(&self) -> String {
-        format!("({} {} {})",
-            self.operator,
-            self.left,
-            self.right)
+        format!("({} {} {})", self.operator, self.left, self.right)
     }
 }
-
 
 //------------------------------------------
 
@@ -51,10 +46,7 @@ impl Unary {
     }
 
     pub fn make_expr(operator: Token, next: Expr) -> Expr {
-        Expr::Unary(Box::new(Unary::new(
-            operator,
-            Box::new(next)
-        )))
+        Expr::Unary(Box::new(Unary::new(operator, Box::new(next))))
     }
 }
 
@@ -75,9 +67,7 @@ impl LiteralExpr {
         Self { value }
     }
     pub fn make_expr(value: Literal) -> Expr {
-        Expr::Literal(Self::new(
-                value
-        ))
+        Expr::Literal(Self::new(value))
     }
 }
 
@@ -87,7 +77,7 @@ impl ToString for LiteralExpr {
             Literal::Number(x) => x.to_string(),
             Literal::String(s) => s.to_string(),
             Literal::Boolean(b) => b.to_string(),
-            Literal::Nil => "Nil".to_string()
+            Literal::Nil => "Nil".to_string(),
         };
 
         format!("({fm})")
@@ -106,11 +96,7 @@ impl Grouping {
     }
 
     pub fn make_expr(expression: Expr) -> Expr {
-        Expr::Grouping(Box::new(
-            Self::new(
-                Box::new(expression)
-            )
-        ))
+        Expr::Grouping(Box::new(Self::new(Box::new(expression))))
     }
 }
 

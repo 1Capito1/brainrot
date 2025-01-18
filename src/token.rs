@@ -11,21 +11,50 @@ pub enum Literal {
 #[derive(Display, Clone, Copy, Debug, PartialEq)]
 pub enum TokenType {
     // Single Character Tokens
-    LeftParen, RightParen, LeftBrace, RightBrace,
-    Comma, Dot, Minus, Plus, SemiColon, Slash, Star,
+    LeftParen,
+    RightParen,
+    LeftBrace,
+    RightBrace,
+    Comma,
+    Dot,
+    Minus,
+    Plus,
+    SemiColon,
+    Slash,
+    Star,
 
     // one or two Character tokens
-    Bang, BangEqual,
-    Equal, EqualEqual,
-    Greater, GreaterEqual,
-    Less, LessEqual,
+    Bang,
+    BangEqual,
+    Equal,
+    EqualEqual,
+    Greater,
+    GreaterEqual,
+    Less,
+    LessEqual,
 
     // literals
-    Identifier, String, Number,
+    Identifier,
+    String,
+    Number,
 
     // keywords
-    And, Class, Else, False, Fun, For, If,  Nil, Or, Print, Return, Super,
-    This, True, Var, While,
+    And,
+    Class,
+    Else,
+    False,
+    Fun,
+    For,
+    If,
+    Nil,
+    Or,
+    Print,
+    Return,
+    Super,
+    This,
+    True,
+    Var,
+    While,
 
     EOF,
 }
@@ -35,14 +64,11 @@ pub struct Token {
     r#type: TokenType,
     pub lexeme: String,
     literal: Option<Literal>,
-    line: usize
+    line: usize,
 }
 
 impl Token {
-    pub fn new(r#type: TokenType,
-               lexeme: String,
-               literal: Option<Literal>,
-               line: usize) -> Self {
+    pub fn new(r#type: TokenType, lexeme: String, literal: Option<Literal>, line: usize) -> Self {
         Self {
             r#type,
             lexeme,
@@ -51,7 +77,7 @@ impl Token {
         }
     }
 
-    pub fn to_string(&self) -> String { 
+    pub fn to_string(&self) -> String {
         format!(
             "{} {} {}",
             self.r#type.to_string(),
@@ -60,7 +86,7 @@ impl Token {
                 .as_ref()
                 .unwrap_or(&Literal::String("<EOF>".to_string()))
                 .to_string()
-            )
+        )
     }
     pub fn get_type(&self) -> &TokenType {
         return &self.r#type;
@@ -68,8 +94,10 @@ impl Token {
     pub fn get_literal(&mut self) -> &Literal {
         return self.literal.as_ref().unwrap();
     }
+    pub fn get_line(&mut self) -> usize {
+        self.line
+    }
 }
-
 
 impl std::fmt::Display for Token {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
