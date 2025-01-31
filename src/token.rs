@@ -1,6 +1,6 @@
 use strum_macros::Display;
 
-#[derive(Display, Debug, Clone)]
+#[derive(Display, Debug, Clone, PartialEq)]
 pub enum Literal {
     Number(f32),
     String(String),

@@ -1,10 +1,12 @@
 mod ast;
+mod interpreter;
 mod parser;
 mod scanner;
 mod test;
 mod token;
 use crate::scanner::Scanner;
 use crate::parser::Parser;
+use crate::ast::Expr;
 use anyhow::Result;
 use clap::Parser as ClapParser;
 use std::fs::File;
@@ -32,16 +34,23 @@ impl Main {
         // TODO: remove this clone call
         self.parser = Parser::new(self.scanner.tokens.clone());
 
-        self.parser.parse();
+        let scanner_errors = self.scanner.get_errors(); // -> &Vec<Error>
+        let parser_errors = self.parser.get_errors(); // -> &Vec<Error>
 
-        // TODO: collect the errors
+        let all_errors: Vec<&Error> = scanner_errors
+                                        .iter()
+                                        .chain(parser_errors.iter())
+                                        .collect();
 
-
-        if self.scanner.get_errors().is_empty() {
-            for token in &self.scanner.tokens {
-                println!("{token:?}");
-            }
+        if !all_errors.is_empty() {
+            println!("{:?}", all_errors);
+            return
         }
+
+        let tree = self.parser.parse();
+
+        let result = Expr::interpret(tree);
+        println!("{:?}", result);
     }
 
     fn run_file(&mut self, path: &String) -> Result<()> {
@@ -84,13 +93,5 @@ fn main() -> Result<()> {
     } else {
         main.run_prompt()?;
     }
-
-    if !main.scanner.get_errors().is_empty() {
-        for error in main.scanner.get_errors() {
-            eprintln!("{error}");
-        }
-        std::process::exit(65);
-    }
-
     Ok(())
 }

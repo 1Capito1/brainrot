@@ -1,9 +1,2 @@
-// for loop
-for (int i = 0; i < 10) {
-    /*
-        /*
-        Hello World
-        */
-    */    
-    print "Hello"
-}
+3 / 2
+

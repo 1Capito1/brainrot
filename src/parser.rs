@@ -1,8 +1,8 @@
 #![allow(dead_code)]
 use crate::ast::*;
 use crate::token::*;
-use anyhow::Result;
 use anyhow::Error;
+use anyhow::Result;
 
 // TODO:
 #[derive(thiserror::Error, Debug)]
@@ -136,7 +136,8 @@ impl Parser {
         let get_token_loc = self.peek().clone().get_line();
         let error = ParserError::InvalidSyntax(get_token_loc);
         self.errors.push(error.into());
-        todo!()
+
+        LiteralExpr::make_expr(Literal::Nil)
     }
 
     // TODO:
@@ -193,7 +194,7 @@ impl Parser {
                 TokenType::While => return,
                 TokenType::Print => return,
                 TokenType::Return => return,
-                _ => ()
+                _ => (),
             }
             self.advance();
         }
