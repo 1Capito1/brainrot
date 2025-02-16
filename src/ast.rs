@@ -3,6 +3,7 @@ use crate::token::{Literal, Token};
 
 //=== AST Structs ===
 
+#[derive(Clone)]
 pub struct Binary {
     pub left: Box<Expr>,
     pub operator: Token,
@@ -35,6 +36,7 @@ impl ToString for Binary {
 
 //------------------------------------------
 
+#[derive(Clone)]
 pub struct Unary {
     pub operator: Token,
     pub next: Box<Expr>,
@@ -58,6 +60,7 @@ impl ToString for Unary {
 
 //------------------------------------------
 
+#[derive(Clone)]
 pub struct LiteralExpr {
     pub value: Literal,
 }
@@ -86,6 +89,7 @@ impl ToString for LiteralExpr {
 
 //------------------------------------------
 
+#[derive(Clone)]
 pub struct Grouping {
     pub expression: Box<Expr>,
 }
@@ -108,6 +112,7 @@ impl ToString for Grouping {
 
 //------------------------------------------
 
+#[derive(Clone)]
 pub enum Expr {
     Binary(Box<Binary>),
     Unary(Box<Unary>),

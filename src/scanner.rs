@@ -44,6 +44,9 @@ pub enum LexicalError {
 
     #[error("[{0}]: Unterminated Block Comment")]
     UnterminatedBlockComment(usize, String),
+
+    #[error("[{0}]: Unknown token: {1}")]
+    UnknownToken(usize, String),
 }
 
 impl Scanner {
@@ -204,7 +207,13 @@ impl Scanner {
 
             '"' => is_ok = self.string(),
             _ if Self::is_digit(c) => is_ok = self.number(),
-            _ if Self::is_alpha(c) => self.identifier(),
+            _ if Self::is_alpha(c) => {
+                let res = self.identifier();
+
+                if let Err(e) = res {
+                    self.errors.push(e);
+                }
+            },
             _ => return Err(LexicalError::InvalidCharacter(c, self.line, self.current).into()),
         }
 
@@ -261,7 +270,7 @@ impl Scanner {
 
         self.advance();
 
-        let value = &self.source[self.start + 1..self.current];
+        let value = &self.source[self.start + 1..self.current-1];
 
         self.add_token(TokenType::String, Some(Literal::String(value.to_string())));
 
@@ -284,19 +293,23 @@ impl Scanner {
         self.add_token(TokenType::Number, Some(Literal::Number(parsed_number)));
         Ok(())
     }
-    fn identifier(&mut self) {
+    fn identifier(&mut self) -> Result<()> {
         while Self::is_alpha_numeric(self.peek()) {
             self.advance();
         }
 
         let text = &self.source[self.start..self.current];
 
-        let mut token_type = TokenType::Identifier;
+        let token_type;
         let t = KEYWORDS.get(text);
 
         if let Some(id) = t {
             token_type = *id;
         }
+        else {
+            return Err(LexicalError::UnknownToken(self.line, text.to_string()).into())
+        }
         self.add_token(token_type, None);
+        Ok(())
     }
 }

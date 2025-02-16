@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 use crate::ast::*;
 use crate::token::*;
+use crate::statements::Statement;
 use anyhow::Error;
 use anyhow::Result;
 
@@ -30,6 +31,7 @@ impl Parser {
     const TERM_TOKENS: &[TokenType] = &[TokenType::Plus, TokenType::Minus];
     const FACTOR_TOKENS: &[TokenType] = &[TokenType::Star, TokenType::Slash];
     const UNARY_TOKENS: &[TokenType] = &[TokenType::Bang, TokenType::Minus];
+    const STATEMENT_TOKENS: &[TokenType] = &[TokenType::Print];
     pub fn new(tokens: Vec<Token>) -> Self {
         Self {
             tokens,
@@ -42,8 +44,37 @@ impl Parser {
         &self.errors
     }
 
-    pub fn parse(&mut self) -> Expr {
-        self.expression()
+    pub fn parse(&mut self) -> Vec<Statement> {
+        let mut statements = vec![];
+
+        while !self.is_at_end() {
+            match self.statement() {
+                Ok(s) => statements.push(s),
+                Err(e) => self.errors.push(e),
+            }
+        }
+
+        return statements;
+    }
+
+    fn statement(&mut self) -> Result<Statement> {
+        if self.match_tokens(Self::STATEMENT_TOKENS) {
+            return self.print_statement();
+        }
+
+        self.expression_statement()
+    }
+
+    fn print_statement(&mut self) -> Result<Statement> {
+        let value = self.expression();
+        self.consume(TokenType::SemiColon, "Expect ; after value")?;
+        return Ok(Statement::Print(value));
+    }
+
+    fn expression_statement(&mut self) -> Result<Statement> {
+        let expr = self.expression();
+        self.consume(TokenType::SemiColon, "Expect; after value")?;
+        return Ok(Statement::Expression(expr));
     }
 
     fn expression(&mut self) -> Expr {

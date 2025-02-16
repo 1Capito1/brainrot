@@ -1,4 +1,5 @@
 mod ast;
+mod statements;
 mod interpreter;
 mod parser;
 mod scanner;
@@ -6,7 +7,6 @@ mod test;
 mod token;
 use crate::scanner::Scanner;
 use crate::parser::Parser;
-use crate::ast::Expr;
 use anyhow::Result;
 use clap::Parser as ClapParser;
 use std::fs::File;
@@ -22,6 +22,22 @@ struct Args {
     count: u8,
 }
 
+fn main() -> Result<()> {
+    let args = Args::parse();
+
+    let mut main = Main {
+        scanner: Scanner::default(),
+        parser: Parser::default(),
+    };
+
+    if let Some(file_name) = &args.file_name {
+        main.run_file(file_name)?;
+    } else {
+        main.run_prompt()?;
+    }
+    Ok(())
+}
+
 struct Main {
     scanner: Scanner,
     parser: Parser,
@@ -34,23 +50,25 @@ impl Main {
         // TODO: remove this clone call
         self.parser = Parser::new(self.scanner.tokens.clone());
 
+        let tree = self.parser.parse();
+
         let scanner_errors = self.scanner.get_errors(); // -> &Vec<Error>
         let parser_errors = self.parser.get_errors(); // -> &Vec<Error>
-
-        let all_errors: Vec<&Error> = scanner_errors
+        let parsing_errors: Vec<&Error> = scanner_errors
                                         .iter()
                                         .chain(parser_errors.iter())
                                         .collect();
-
-        if !all_errors.is_empty() {
-            println!("{:?}", all_errors);
-            return
+        if !parsing_errors.is_empty() {
+            parsing_errors.iter().for_each(|e| println!("{e:?}"));
         }
+        else {
+            let mut interpreter = interpreter::Interpreter::new();
+            let _result = interpreter.interpret(tree);
 
-        let tree = self.parser.parse();
-
-        let result = Expr::interpret(tree);
-        println!("{:?}", result);
+            if !interpreter.errors.is_empty() {
+                println!("{:?}", interpreter.errors);
+            }
+        }
     }
 
     fn run_file(&mut self, path: &String) -> Result<()> {
@@ -80,18 +98,3 @@ impl Main {
     }
 }
 
-fn main() -> Result<()> {
-    let args = Args::parse();
-
-    let mut main = Main {
-        scanner: Scanner::default(),
-        parser: Parser::default(),
-    };
-
-    if let Some(file_name) = &args.file_name {
-        main.run_file(file_name)?;
-    } else {
-        main.run_prompt()?;
-    }
-    Ok(())
-}

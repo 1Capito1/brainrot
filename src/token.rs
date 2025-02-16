@@ -8,6 +8,17 @@ pub enum Literal {
     Nil,
 }
 
+impl Literal {
+    pub fn to_string(&self) -> String{
+        match self {
+            Literal::Number(f) => f.to_string(),
+            Literal::String(s) => s.to_string(),
+            Literal::Boolean(b) => b.to_string(),
+            Literal::Nil => "Nil".to_string()
+        }
+    }
+}
+
 #[derive(Display, Clone, Copy, Debug, PartialEq)]
 pub enum TokenType {
     // Single Character Tokens
@@ -34,7 +45,6 @@ pub enum TokenType {
     LessEqual,
 
     // literals
-    Identifier,
     String,
     Number,
 
@@ -77,6 +87,7 @@ impl Token {
         }
     }
 
+    #[allow(dead_code)] // TODO: if this exists in the final version and is unused, remove it
     pub fn to_string(&self) -> String {
         format!(
             "{} {} {}",

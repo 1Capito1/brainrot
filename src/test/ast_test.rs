@@ -1,6 +1,6 @@
 mod test {
+    #[allow(unused_imports)] // for some reason rust thinks i don't need these
     use crate::{ast::*, token::*};
-
     #[test]
     fn ast_pretty_printer() {
         let unary_t = Unary::new(
