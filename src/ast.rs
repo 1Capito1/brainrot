@@ -1,4 +1,6 @@
 #![allow(dead_code)]
+use std::fmt::Display;
+
 use crate::token::{Literal, Token};
 
 //=== AST Structs ===
@@ -112,12 +114,25 @@ impl ToString for Grouping {
 
 //------------------------------------------
 
+//------------------------------------------
+#[derive(Clone)]
+pub struct Variable {
+    name: Token,
+}
+impl Display for Variable {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.name)
+    }
+}
+//------------------------------------------
+
 #[derive(Clone)]
 pub enum Expr {
     Binary(Box<Binary>),
     Unary(Box<Unary>),
     Literal(LiteralExpr),
     Grouping(Box<Grouping>),
+    Var(Box<Variable>),
 }
 
 impl Expr {
@@ -127,6 +142,7 @@ impl Expr {
             Expr::Unary(u) => u.to_string(),
             Expr::Literal(l) => l.to_string(),
             Expr::Grouping(g) => g.to_string(),
+            Expr::Var(v) => v.to_string(),
         }
     }
 }

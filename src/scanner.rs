@@ -2,7 +2,6 @@
 
 use crate::token::{Literal, Token, TokenType};
 use anyhow::{Error, Result};
-use phf;
 use phf_macros::phf_map;
 use thiserror::Error;
 
@@ -235,7 +234,7 @@ impl Scanner {
         if self.is_at_end() {
             return '\0';
         }
-        return self.source.chars().nth(self.current).unwrap();
+        self.source.chars().nth(self.current).unwrap()
     }
     fn peek_next(&self) -> char {
         if self.current + 1 >= self.source.len() {
@@ -248,10 +247,10 @@ impl Scanner {
     }
 
     fn is_digit(c: char) -> bool {
-        return c >= '0' && c <= '9';
+        c.is_ascii_digit()
     }
     fn is_alpha(c: char) -> bool {
-        return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
+        c.is_ascii_alphabetic() || c == '_'
     }
     fn is_alpha_numeric(c: char) -> bool {
         Self::is_alpha(c) || Self::is_digit(c)

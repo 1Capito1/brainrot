@@ -54,7 +54,7 @@ impl Parser {
             }
         }
 
-        return statements;
+        statements
     }
 
     fn statement(&mut self) -> Result<Statement> {
@@ -68,13 +68,13 @@ impl Parser {
     fn print_statement(&mut self) -> Result<Statement> {
         let value = self.expression();
         self.consume(TokenType::SemiColon, "Expect ; after value")?;
-        return Ok(Statement::Print(value));
+        Ok(Statement::Print(value))
     }
 
     fn expression_statement(&mut self) -> Result<Statement> {
         let expr = self.expression();
         self.consume(TokenType::SemiColon, "Expect; after value")?;
-        return Ok(Statement::Expression(expr));
+        Ok(Statement::Expression(expr))
     }
 
     fn expression(&mut self) -> Expr {
@@ -138,7 +138,7 @@ impl Parser {
             return Unary::make_expr(operator, right);
         }
 
-        return self.primary();
+        self.primary()
     }
 
     fn primary(&mut self) -> Expr {
@@ -177,7 +177,7 @@ impl Parser {
             return Ok(self.advance());
         }
         let get_token_loc = self.peek().clone().get_line();
-        Err(ParserError::GenericMessage(get_token_loc, err_str.to_string()).into())
+        Err(ParserError::GenericMessage(get_token_loc, err_str.to_string()))
     }
 
     fn match_tokens(&mut self, token_types: &[TokenType]) -> bool {
@@ -193,23 +193,23 @@ impl Parser {
         if self.is_at_end() {
             return false;
         }
-        return *self.peek().get_type() == t;
+        *self.peek().get_type() == t
     }
     fn advance(&mut self) -> Token {
         if !self.is_at_end() {
             self.current += 1;
         }
-        return self.previous();
+        self.previous()
     }
 
     fn is_at_end(&self) -> bool {
-        return *self.peek().get_type() == TokenType::EOF;
+        *self.peek().get_type() == TokenType::EOF
     }
     fn previous(&self) -> Token {
-        return self.tokens[self.current - 1].clone();
+        self.tokens[self.current - 1].clone()
     }
     fn peek(&self) -> &Token {
-        return &self.tokens[self.current];
+        &self.tokens[self.current]
     }
 
     fn synchronize(&mut self) {

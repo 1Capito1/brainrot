@@ -8,18 +8,8 @@ pub enum Literal {
     Nil,
 }
 
-impl Literal {
-    pub fn to_string(&self) -> String{
-        match self {
-            Literal::Number(f) => f.to_string(),
-            Literal::String(s) => s.to_string(),
-            Literal::Boolean(b) => b.to_string(),
-            Literal::Nil => "Nil".to_string()
-        }
-    }
-}
-
 #[derive(Display, Clone, Copy, Debug, PartialEq)]
+#[allow(clippy::upper_case_acronyms)]
 pub enum TokenType {
     // Single Character Tokens
     LeftParen,
@@ -87,23 +77,11 @@ impl Token {
         }
     }
 
-    #[allow(dead_code)] // TODO: if this exists in the final version and is unused, remove it
-    pub fn to_string(&self) -> String {
-        format!(
-            "{} {} {}",
-            self.r#type.to_string(),
-            self.lexeme,
-            self.literal
-                .as_ref()
-                .unwrap_or(&Literal::String("<EOF>".to_string()))
-                .to_string()
-        )
-    }
     pub fn get_type(&self) -> &TokenType {
-        return &self.r#type;
+        &self.r#type
     }
     pub fn get_literal(&mut self) -> &Literal {
-        return self.literal.as_ref().unwrap();
+        self.literal.as_ref().unwrap()
     }
     pub fn get_line(&mut self) -> usize {
         self.line

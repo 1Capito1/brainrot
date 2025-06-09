@@ -42,11 +42,12 @@ impl Interpreter {
         match statement {
             Statement::Print(e) => {
                 let literal = self.evaluate(e)?;
-                println!("{}", literal.to_string());
+                println!("{}", literal);
             },
             Statement::Expression(e) => {
                 let literal = self.evaluate(e)?;
             },
+            Statement::Var(n, e) => (),
         }
         Ok(())
     }
@@ -57,6 +58,7 @@ impl Interpreter {
             Expr::Unary(u) => Ok(self.interpret_unary(*u)?),
             Expr::Literal(l) => Ok(self.interpret_literal(l)),
             Expr::Grouping(g) => Ok(self.interpret_grouping(*g)),
+            Expr::Var(v) => todo!(),
         }
     }
 
@@ -99,7 +101,7 @@ impl Interpreter {
         let left = self.interpret_expression(left)?;
         let right = self.interpret_expression(right)?;
 
-        return match (left, right) {
+        match (left, right) {
             (Literal::Number(a), Literal::Number(b)) => Ok(Literal::Number(a + b)),
             (Literal::String(a), Literal::String(b)) => Ok(Literal::String(a + &b)),
             (Literal::Number(a), Literal::String(b)) => Ok(Literal::String(a.to_string() + &b)),
@@ -112,7 +114,7 @@ impl Interpreter {
         let left = self.interpret_expression(left)?;
         let right = self.interpret_expression(right)?;
 
-        return match (left, right) {
+        match (left, right) {
             (Literal::Number(a), Literal::Number(b)) => Ok(Literal::Number(a - b)),
             _ => Err(InterpretError::IncorrectType.into())
         }
@@ -122,7 +124,7 @@ impl Interpreter {
         let left = self.interpret_expression(left)?;
         let right = self.interpret_expression(right)?;
 
-        return match (left, right) {
+        match (left, right) {
             (Literal::Number(a), Literal::Number(b)) => Ok(Literal::Number(a * b)),
             (Literal::String(a), Literal::Number(b)) => Ok(Literal::String(a.repeat(b as usize))),
             (Literal::Number(a), Literal::String(b)) => Ok(Literal::String(b.repeat(a as usize))),
@@ -134,7 +136,7 @@ impl Interpreter {
         let left = self.interpret_expression(left)?;
         let right = self.interpret_expression(right)?;
 
-        return match (left, right) {
+        match (left, right) {
             (Literal::Number(a), Literal::Number(b)) => Ok(Literal::Number(a / b)),
             _ => Err(InterpretError::IncorrectType.into())
         }
@@ -143,7 +145,7 @@ impl Interpreter {
     fn less(&mut self, left: Expr, right: Expr) -> Result<Literal> {
         let left = self.interpret_expression(left)?;
         let right = self.interpret_expression(right)?;
-        return match (left, right) {
+        match (left, right) {
             (Literal::Number(a), Literal::Number(b)) => Ok(Literal::Boolean(a < b)),
             _ => Err(InterpretError::IncorrectType.into())
         }
@@ -153,7 +155,7 @@ impl Interpreter {
     fn less_equal(&mut self, left: Expr, right: Expr) -> Result<Literal> {
         let left = self.interpret_expression(left)?;
         let right = self.interpret_expression(right)?;
-        return match (left, right) {
+        match (left, right) {
             (Literal::Number(a), Literal::Number(b)) => Ok(Literal::Boolean(a <= b)),
             _ => Err(InterpretError::IncorrectType.into())
         }
@@ -175,7 +177,7 @@ impl Interpreter {
                 Literal::Nil => Ok(Literal::Boolean(result)),
             }
         };
-        return Err(InterpretError::IncorrectType.into());
+        Err(InterpretError::IncorrectType.into())
     }
 
     fn equal(&mut self, left: Expr, right: Expr) -> Result<Literal> {
@@ -192,7 +194,7 @@ impl Interpreter {
                 Literal::Nil => unreachable!(),
             }
         };
-        return Err(InterpretError::IncorrectType.into());
+        Err(InterpretError::IncorrectType.into())
     }
 
     //----------------------------UNARY EXPRESSIONS----------------------------

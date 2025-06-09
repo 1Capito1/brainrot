@@ -1,3 +1,4 @@
+#![allow(clippy::to_string_trait_impl)]
 mod ast;
 mod statements;
 mod interpreter;
@@ -92,7 +93,7 @@ impl Main {
                 println!();
                 break;
             }
-            self.run(&content.trim());
+            self.run(content.trim());
         }
         Ok(())
     }
